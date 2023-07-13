@@ -1,6 +1,8 @@
 import { MiddlewareFn } from "type-graphql";
 import IContext from "../types/context.types";
 import { AuthenticationError } from "apollo-server-core";
+import { verifyToken } from "../utils/tokenManager";
+import { JwtPayload } from "jsonwebtoken";
 
 const Middleware: MiddlewareFn<IContext> = ({ context }, next) => {
 
@@ -8,16 +10,20 @@ const Middleware: MiddlewareFn<IContext> = ({ context }, next) => {
     
     try {
         const auth = context.req.headers['authorization']
-        const access = auth && auth.split(' ')[1]
+        const accessToken = auth && auth.split(' ')[1]
 
-        if (!access) {
+        if (!accessToken) {
             throw new AuthenticationError('Not authenicated')
         }
+
+        const decodedUser = verifyToken(accessToken) as JwtPayload & { id: string }
+
+        context.user = decodedUser
 
         return next()
 
     } catch (err) {
-        throw new AuthenticationError(`Error on authenticating`)
+        throw new AuthenticationError(`Error on authenticating: ${JSON.stringify(err)}`)
     }
 
 }
