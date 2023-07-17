@@ -1,14 +1,17 @@
 import "reflect-metadata"
 import express from "express"
+import cookieParser  from "cookie-parser"
 import dotenv from "dotenv"
 import mongoose from "mongoose"
 import { createServer } from "http"
 import { ApolloServer } from "apollo-server-express"
 import { buildSchema } from "type-graphql"
 import { ApolloServerPluginDrainHttpServer, ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core"
-import MainResolver from "./graphql/resolvers"
+import Ping from "./graphql/resolvers"
 import Schema from "./graphql/typeDefs"
 import UserResolver from "./graphql/resolvers/user"
+import IContext from "./types/context.types"
+import refreshTokenHandler from "./routers/refreshTokenHandler"
 
 dotenv.config()
 
@@ -25,13 +28,19 @@ async function main() {
         })
     
     const app = express()
+
+    app.use(cookieParser())
+
+    app.use("/refresh_token", refreshTokenHandler)
+
     const httpServer = createServer(app)
+
     const apolloServer = new ApolloServer({
-        context: ({ req, res }) => {
+        context: ({ req, res }): Pick<IContext, 'req' | 'res'> => {
             return ({ req, res })
         }, schema: await buildSchema({
             validate: false, resolvers: [
-                MainResolver, UserResolver
+                Ping, UserResolver
             ] }
         ), plugins: [
             ApolloServerPluginDrainHttpServer({httpServer}),
@@ -40,7 +49,11 @@ async function main() {
     })
 
     await apolloServer.start()
-    apolloServer.applyMiddleware({ app })
+    
+    apolloServer.applyMiddleware({ app, cors: {
+        origin: "http://localhost:3000",
+        credentials: true
+    } })
 
     await new Promise (resolve => httpServer.listen({ port: PORT }, resolve as () => void))
 

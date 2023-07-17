@@ -4,7 +4,7 @@ import IContext from "../../types/context.types";
 import User from "../../models/user.model";
 
 @Resolver()
-export default class Main {
+export default class Ping {
     @Query(_return => String)
     @UseMiddleware(Middleware)
     async hello(@Ctx() { user }: IContext): Promise<string> {
