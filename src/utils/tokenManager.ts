@@ -5,7 +5,7 @@ type AuthVerified = JwtPayload & { id: string }
 
 export const generateToken = (userId: string, expiresIn?: string) => {
     const payload = { id: userId }
-    const limit = { expiresIn: expiresIn ?? '30s' }
+    const limit = { expiresIn: expiresIn ?? '60m' }
     return sign(payload, process.env.PRIVATE_KEY as string, limit)
 }
 
@@ -22,7 +22,7 @@ type SendRefreshTokenPayload = {
 export const sendRefreshToken = ({res, userId, limit}:SendRefreshTokenPayload) => {
     res.cookie(
         'EXTRAVEL_REFRESH_TOKEN',
-        generateToken(userId, limit ?? '60m'),
+        generateToken(userId, limit ?? '180d'),
         {
             httpOnly: true,
             secure: true,

@@ -12,6 +12,7 @@ import Schema from "./graphql/typeDefs"
 import UserResolver from "./graphql/resolvers/user"
 import IContext from "./types/context.types"
 import refreshTokenHandler from "./routers/refreshTokenHandler"
+import PlanResolver from "./graphql/resolvers/plan"
 
 dotenv.config()
 
@@ -40,7 +41,7 @@ async function main() {
             return ({ req, res })
         }, schema: await buildSchema({
             validate: false, resolvers: [
-                Ping, UserResolver
+                Ping, UserResolver, PlanResolver
             ] }
         ), plugins: [
             ApolloServerPluginDrainHttpServer({httpServer}),
@@ -54,6 +55,8 @@ async function main() {
         origin: "http://localhost:3000",
         credentials: true
     } })
+
+    // apolloServer.applyMiddleware({ app })
 
     await new Promise (resolve => httpServer.listen({ port: PORT }, resolve as () => void))
 

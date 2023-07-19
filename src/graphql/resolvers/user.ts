@@ -1,8 +1,8 @@
 import { Mutation, Resolver, Arg, Ctx } from "type-graphql";
-import { SignupInput, SigninInput } from "../../types/request.types";
+import { SignupInput, SigninInput } from "../../types/request/auth.types";
 import User from "../../models/user.model";
 import argon2 from "argon2";
-import Response, { AuthResponse } from "../../types/response.types";
+import Response, { AuthResponse } from "../../types/response/response.types";
 import { generateToken, sendRefreshToken } from "../../utils/tokenManager";
 import IContext from "../../types/context.types";
 

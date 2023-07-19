@@ -7,6 +7,7 @@ import { JwtPayload } from "jsonwebtoken";
 const Middleware: MiddlewareFn<IContext> = ({ context }, next) => {
 
     try {
+
         const auth = context.req.headers['authorization']
         const accessToken = auth && auth.split(' ')[1]
 
